@@ -7,6 +7,9 @@ import { serve } from 'inngest/express'
 import dns from 'dns/promises'
 import { clerkMiddleware } from '@clerk/express'
 import userRouter from './routes/userRoutes.js';
+import postRouter from './routes/postRoutes.js';
+import storyRouter from './routes/storyRoutes.js';
+import messageRouter from './routes/messageRoutes.js';
 
 // Use Cloudflare + Google DNS
 dns.setServers([
@@ -28,6 +31,9 @@ app.use('/api/inngest', serve({
   functions,
 }))
 app.use('/api/user', userRouter)
+app.use('/api/post', postRouter)
+app.use('api/story', storyRouter)
+app.use('/api/message', messageRouter)
 
 const PORT = process.env.PORT || 4000;
 

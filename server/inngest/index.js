@@ -2,6 +2,8 @@ import { Inngest } from "inngest";
 import sendEmail from "../configs/nodeMailer.js";
 import User from "../models/User.js";
 import Connection from "../models/connection.js";
+import Story from "../models/Story.js";
+import Message from "../models/Message.js";
 
 
 // Create a client to send and receive events
@@ -101,12 +103,61 @@ const sendNewConnetionRequestReminder = inngest.createFunction(
         })
     }
 )
+//Inngest function to delete story after 24 hours
+const deleteStory = inngest.createFunction(
+    {id: 'story-delete', triggers: [{ event: 'app/story.delete' }]},
+    async ({ event, step }) => {
+        const { storyId } = event.data;
+        const in24Hours = new Date(Date.now() + 24 * 60 * 60 * 1000)
+        await step.sleepUntil('wait-for-24-hours', in24Hours)
+        await step.run("delete-story", async () => {
+            await Story.findByIdAndDelete(storyId)
+            return { message: "Story deleted." }
+        })
+    }
+)
 
+const sendNotificationOfUnseenMessages = inngest.createFunction(
+    {id: "send-unseen-message-notification"},
+    {cron: "TZ=America/New_York 0 9 * * *"}, // Everyday 9 am
+    async ({step}) => {
+        const message = await Message.find({seen: false}).populate('to_user_id');
+        const unseenCount = {}
+
+        message.map(message=> {
+            unseenCount[message.to_user_id._id] = (unseenCount[message.to_user_id._id] || 0)
+        })
+
+        for (const userId in unseenCount) {
+            const user = await User.findById(userId);
+
+            const subject = `You have ${unseenCount[userId]} unseen messages`;
+
+            const body = `
+            <div style="font-family: Arial, sans-serif; padding: 20px">
+            <h2> Hi ${user.full_name},<h2>
+            <p>You have ${unseenCount[usedId]} unseen message </p>
+            <p> Click <a href="${process.env.FRONTEND_URL}/message" style="color: #10b981;">here</a> to view them</p>
+            <br/>
+            <p>Thanks, <br/> Zyro - stay connected </p>
+            </div>`;
+
+            await sendEmail({
+                to: user.email,
+                subject,
+                body
+            })
+        }
+        return {message: "Notification sent"}
+    }
+)
 
 // Create an empty array where we'll export future Inngest functions
 export const functions = [
     syncUserCreation,
     syncUserUpdation,
     syncUserDeletion,
-    sendNewConnetionRequestReminder
+    sendNewConnetionRequestReminder,
+    deleteStory,
+    sendNotificationOfUnseenMessages
 ];
