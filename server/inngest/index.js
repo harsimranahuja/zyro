@@ -118,14 +118,14 @@ const deleteStory = inngest.createFunction(
 )
 
 const sendNotificationOfUnseenMessages = inngest.createFunction(
-    {id: "send-unseen-message-notification"},
-    {cron: "TZ=America/New_York 0 9 * * *"}, // Everyday 9 am
-    async ({step}) => {
-        const message = await Message.find({seen: false}).populate('to_user_id');
+    { id: "send-unseen-message-notification", schedule: { cron: "0 9 * * *", tz: "America/New_York" } }, // Everyday 9 am
+    async ({ step }) => {
+        const messages = await Message.find({ seen: false }).populate('to_user_id');
         const unseenCount = {}
 
-        message.map(message=> {
-            unseenCount[message.to_user_id._id] = (unseenCount[message.to_user_id._id] || 0)
+        messages.forEach(msg => {
+            const userId = String(msg.to_user_id._id)
+            unseenCount[userId] = (unseenCount[userId] || 0) + 1
         })
 
         for (const userId in unseenCount) {
@@ -135,8 +135,8 @@ const sendNotificationOfUnseenMessages = inngest.createFunction(
 
             const body = `
             <div style="font-family: Arial, sans-serif; padding: 20px">
-            <h2> Hi ${user.full_name},<h2>
-            <p>You have ${unseenCount[usedId]} unseen message </p>
+            <h2> Hi ${user.full_name},</h2>
+            <p>You have ${unseenCount[userId]} unseen message(s) </p>
             <p> Click <a href="${process.env.FRONTEND_URL}/message" style="color: #10b981;">here</a> to view them</p>
             <br/>
             <p>Thanks, <br/> Zyro - stay connected </p>
@@ -148,7 +148,7 @@ const sendNotificationOfUnseenMessages = inngest.createFunction(
                 body
             })
         }
-        return {message: "Notification sent"}
+        return { message: "Notification sent" }
     }
 )
 
