@@ -2,16 +2,47 @@ import React, { useEffect, useState } from 'react'
 import { dummyRecentMessagesData } from '../assets/assets'
 import { Link } from 'react-router-dom'
 import moment from 'moment'
+import toast from 'react-hot-toast'
 
 const RecentMessages = () => {
 
   const [message, setMessages] = useState([])
+  const {user} = useUser()
+  const{getToken} = useAuth()
   const fetchRecentMessages = async () => {
-    setMessages(dummyRecentMessagesData)
+    try {
+      const token = await getToken()
+      const { data } = await api.get('/api/user/recent-messages', {
+        headers: { Authorization: `Bearer ${token}`}
+      })
+      if(data.success){
+        //Group message by sender and get the latest message for each sender
+        const groupMessages = data.messages.reduce((acc, message)=>{
+          const senderId = message.from_user_id._id;
+          if(!acc[senderId] || new Date(message.createdAt) > new Date(acc[senderId].createdAt)){
+            acc[senderId] = message
+          }
+          return acc;
+        }, {})
+
+        //sort message by date
+        const sortedMessages = Object.values(groupMessages).sort((a, b)=> new Date(b.createdAt) - new Date(a.createdAt))
+
+        setMessages(sortedMessages)
+      }else{
+        toast.error(data.message)
+      }
+    } catch (error) {
+      toast.error(error.message)
+    }
   }
   useEffect(() => {
-    fetchRecentMessages()
-  })
+    if(user){
+      fetchRecentMessages()
+      setInterval(fetchRecentMessages, 30000)
+      return ()=> {clearInterval()}
+    }
+  },[user])
 
   return (
     <div className='bg-white max-w-xs mt-4 p-4 min-h-20 rounded-md shadow text-xs text-slate-800'>

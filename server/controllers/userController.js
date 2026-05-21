@@ -187,8 +187,8 @@ export const sendConnectionRequest = async (req, res) => {
         // check if users are already connected
         const connection = await Connection.findOne({
             $or: [
-                { rom_user_id: userId, to_user_id: id },
-                { rom_user_id: id, to_user_id: userId },
+                {from_user_id: userId, to_user_id: id },
+                {from_user_id: id, to_user_id: userId },
             ]
         })
         if (!connection) {
