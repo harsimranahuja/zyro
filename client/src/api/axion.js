@@ -1,6 +1,6 @@
-import axions from 'axions';
+import axios from 'axios';
 
-const api = axions.create({
+const api = axios.create({
     baseURL: import.meta.env.VITE_BASEURL
 })
 

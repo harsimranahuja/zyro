@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import api from '../../api/axion'
 
 const initialState = {
     connection: [],
@@ -32,4 +33,4 @@ const connectionsSlice = createSlice({
     }
 })
 
-export default messagesSlice.reducer
+export default connectionsSlice.reducer

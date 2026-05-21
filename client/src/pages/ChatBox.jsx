@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { useAuth } from '@clerk/react'
 import { addMessage, fetchMessages, resetMessages } from '../features/messages/messagesSlice'
-import { connection } from 'mongoose'
 
 const ChatBox = () => {
 
