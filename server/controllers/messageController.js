@@ -12,16 +12,19 @@ export const sseController = (req, res)=>{
     console.log('New client connected : ', userId)
 
     //set SSE headers
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache, no-transform',
+        'Connection': 'keep-alive',
+        'X-Accel-Buffering': 'no',
+        'Access-Control-Allow-Origin': '*'
+    });
 
     //Add the client's response object to the connections object
     connections[userId] = res
 
     //send an initial event to the client
-    res.write('log: connected to SSE stream\n\n');
+    res.write('data: {"message": "connected to SSE stream"}\n\n');
 
     //handle client disconnection
     req.on('close', ()=>{

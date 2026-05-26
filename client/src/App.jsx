@@ -47,14 +47,19 @@ const App = () => {
       const eventSource = new EventSource(import.meta.env.VITE_BASEURL + '/api/message/' + user.id);
 
       eventSource.onmessage = (event)=>{
-        const message = JSON.parse(event.data)
+        try {
+          const message = JSON.parse(event.data)
+          if (!message || !message.from_user_id) return;
 
-        if(pathnameRef.current === ('/messages/' + message.from_user_id._id)){
-          dispatch(addMessage(message))
-        }else{
-          toast.custom((t)=>(
-            <Notification t={t} message={message}/>
-          ), {position: "bottom-right"})
+          if(pathnameRef.current === ('/messages/' + message.from_user_id._id)){
+            dispatch(addMessage(message))
+          }else{
+            toast.custom((t)=>(
+              <Notification t={t} message={message}/>
+            ), {position: "bottom-right"})
+          }
+        } catch (e) {
+          console.error("Error parsing message event:", e)
         }
       }
       return ()=>{
