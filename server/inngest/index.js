@@ -124,8 +124,10 @@ const sendNotificationOfUnseenMessages = inngest.createFunction(
         const unseenCount = {}
 
         messages.forEach(msg => {
-            const userId = String(msg.to_user_id._id)
-            unseenCount[userId] = (unseenCount[userId] || 0) + 1
+            if (msg.to_user_id) {
+                const userId = String(msg.to_user_id._id || msg.to_user_id)
+                unseenCount[userId] = (unseenCount[userId] || 0) + 1
+            }
         })
 
         for (const userId in unseenCount) {
@@ -137,7 +139,7 @@ const sendNotificationOfUnseenMessages = inngest.createFunction(
             <div style="font-family: Arial, sans-serif; padding: 20px">
             <h2> Hi ${user.full_name},</h2>
             <p>You have ${unseenCount[userId]} unseen message(s) </p>
-            <p> Click <a href="${process.env.FRONTEND_URL}/message" style="color: #10b981;">here</a> to view them</p>
+             <p> Click <a href="${process.env.FRONTEND_URL}/messages" style="color: #10b981;">here</a> to view them</p>
             <br/>
             <p>Thanks, <br/> Zyro - stay connected </p>
             </div>`;

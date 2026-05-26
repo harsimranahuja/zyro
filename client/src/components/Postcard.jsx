@@ -5,6 +5,8 @@ import { dummyUserData } from '../assets/assets'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import toast from 'react-hot-toast'
+import { useAuth } from '@clerk/react'
+import api from '../api/axion.js'
 
 const Postcard = ({post}) => {
     const postWithHashtags = post.content.replace(
@@ -18,7 +20,7 @@ const { getToken } = useAuth()
 
 const handleLike = async () => {
     try {
-        const { data } = await api.post(`/api/post/like`, {postId: post._id}, {header: { Authorization: `Bearer ${await getToken()}` }})
+        const { data } = await api.post(`/api/post/like`, {postId: post._id}, {headers: { Authorization: `Bearer ${await getToken()}` }})
         if (data.success){
             toast.success(data.message)
             setLikes(prev =>{

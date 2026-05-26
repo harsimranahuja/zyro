@@ -7,6 +7,9 @@ import PostCard from '../components/Postcard'
 import { dummyPostsData, dummyUserData } from '../assets/assets'
 import moment from 'moment'
 import { useSelector } from 'react-redux'
+import { useAuth } from '@clerk/react'
+import api from '../api/axion.js'
+import { toast } from 'react-hot-toast'
 
 
 const Profile = () => {
@@ -19,7 +22,7 @@ const Profile = () => {
   const [showEdit, setShowEdit] = useState(false)
 
   const fetchUser = async (profileId) => {
-    const token = await getToken
+    const token = await getToken()
     try{
       const { data } = await api.post(`/api/user/profiles`, {profileId}, {
         headers: {Authorization: `Bearer ${token}`}

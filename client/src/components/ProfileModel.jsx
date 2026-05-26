@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import { dummyUserData } from '../assets/assets'
 import { Pencil } from 'lucide-react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { updateUser } from '../features/user/userSlice';
+import { useAuth } from '@clerk/react'
+import { toast } from 'react-hot-toast'
 
 const ProfileModel = ({setShowEdit}) => {
 

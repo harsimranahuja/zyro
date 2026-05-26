@@ -5,6 +5,9 @@ import Loading from '../components/Loading'
 import UserCard from '../components/UserCard'
 import { useDispatch } from 'react-redux'
 import { fetchUser } from '../features/user/userSlice'
+import { useAuth } from '@clerk/react'
+import api from '../api/axion.js'
+import { toast } from 'react-hot-toast'
 
 const Discover = () => {
 
@@ -36,7 +39,7 @@ const Discover = () => {
     getToken().then((token)=>{
       dispatch(fetchUser(token))
     })
-  })
+  }, [])
 
   return (
     <div className='min-h-screen bg-gradient-to-b from-slate-50 to-white'>

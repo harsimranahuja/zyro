@@ -1,6 +1,8 @@
 import { ArrowLeft, Sparkle, TextIcon, Upload } from 'lucide-react'
 import React, { useState } from 'react'
 import toast from 'react-hot-toast'
+import { useAuth } from '@clerk/react'
+import api from '../api/axion.js'
 
 const StoryModel = ({ setShowModal, fetchStories }) => {
 
@@ -44,7 +46,7 @@ const StoryModel = ({ setShowModal, fetchStories }) => {
                 }
 
                 video.src = URL.createObjectURL(file)
-            }else if(file.type.startWith("image")){
+            }else if(file.type.startsWith("image")){
                 setMedia(file)
                 setPreviewUrl(URL.createObjectURL(file))
                 setText('')
@@ -54,7 +56,7 @@ const StoryModel = ({ setShowModal, fetchStories }) => {
         
     }
     const handleCreateStory = async () => {
-        const media_type = mode === 'media' ? media?.type.startWith('image') ? 'image' : "video" : "text";
+        const media_type = mode === 'media' ? media?.type.startsWith('image') ? 'image' : "video" : "text";
 
         if(media_type === "text" && !text){
             throw new Error("Please enter some text")
@@ -121,7 +123,7 @@ const StoryModel = ({ setShowModal, fetchStories }) => {
                         <TextIcon size={18} /> Text
                     </button>
                     <label className={`flex-1 flex items-center justify-center gap-2 p-2 rounded cursor-pointer ${mode === 'media' ? "bg-white text-black" : "bg-zinc-800"}`}>
-                        <input onClick={handleMediaUpload} type="file" accept='image/*, video/*' className='hidden' />
+                        <input onChange={handleMediaUpload} type="file" accept='image/*, video/*' className='hidden' />
                         <Upload size={18} /> Photo/Video
                     </label>
                 </div> <br />

@@ -1,6 +1,7 @@
 import fs from "fs";
 import imagekit from "../configs/imageKit.js"
 import Message from "../models/Message.js"
+import { getAuth } from '@clerk/express';
 
 //create an empty object to store ss event connections
 const connections = {};
@@ -33,7 +34,7 @@ export const sseController = (req, res)=>{
 //Send Message
 export const sendMessage = async (req, res) => {
     try{
-        const { userId } = req.auth();
+        const { userId } = getAuth(req)
         const { to_user_id, text } = req.body;
         const image = req.file;
 
@@ -42,14 +43,19 @@ export const sendMessage = async (req, res) => {
 
         if(message_type === 'image'){
             const fileBuffer = fs.readFileSync(image.path);
-            const response = await ImageTrackList.upload({
+            const response = await imagekit.upload({
+                file: fileBuffer,
+                fileName: image.originalname,
+                folder: 'messages'
+            });
+            media_url = imagekit.url({
                 path: response.filePath,
                 transformation: [
                     {quality: 'auto'},
                     {format: 'webp'},
                     {width: '1280'}
                 ]
-            })
+            });
         }
         const message = await Message.create({
             from_user_id: userId,
@@ -64,8 +70,8 @@ export const sendMessage = async (req, res) => {
 
         const messageWithUserData = await Message.findById(message._id).populate('from_user_id');
 
-        if(connection[to_user_id]){
-            connection[to_user_id].write(`data: ${JSON.stringify(messageWithUserData)}\n\n`)
+        if(connections[to_user_id]){
+            connections[to_user_id].write(`data: ${JSON.stringify(messageWithUserData)}\n\n`)
         }
     }
     catch (error){
@@ -78,7 +84,7 @@ export const sendMessage = async (req, res) => {
 
 export const getChatMessages = async (req, res) => {
     try{
-        const { userId } = req.auth();
+        const { userId } = getAuth(req)
         const { to_user_id } = req.body;
 
         const message = await Message.find({
@@ -90,7 +96,7 @@ export const getChatMessages = async (req, res) => {
         // mark message as seen
         await Message.updateMany({from_user_id: to_user_id, to_user_id: userId}, {seen: true})
 
-        res.json({ success: true, message });
+        res.json({ success: true, messages: message });
     }
     catch (error) {
         res.json({ success: false, message: error.message });
@@ -99,10 +105,10 @@ export const getChatMessages = async (req, res) => {
 
 export const getUserRecentMessages = async (req, res) => {
     try{
-        const { userId } = req.auth();
+        const { userId } = getAuth(req)
         const message = await Message.find({to_user_id: userId}).populate('from_user_id to_user_id').sort({ created_at: -1});
 
-        res.json({ success: true, message});
+        res.json({ success: true, messages: message});
     }
     catch (error) {
         res.json({ success: false, message: error.message});

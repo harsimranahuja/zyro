@@ -1,10 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import api from '../../api/axion.js'
 
 const initialState = {
     messages: []
 }
 
-export const fetchMessages = createAsyncThunk('messages/fetchMessages', async (token, userId) => {
+export const fetchMessages = createAsyncThunk('messages/fetchMessages', async ({token, userId}) => {
     const { data } = await api.post('/api/message/get', {to_user_id: userId}, {
         headers: { Authorization: `Bearer ${token}` }
     })
@@ -19,10 +20,10 @@ const messagesSlice = createSlice({
             state.messages = action.payload;
         },
         addMessage: (state, action)=>{
-            state.message = [...state.messages, action.payload]
+            state.messages = [...state.messages, action.payload]
         },
         resetMessages: (state)=>{
-            state.message = [];
+            state.messages = [];
         }
     },
     extraReducers: (builder)=>{

@@ -1,6 +1,5 @@
 import { BadgeCheck, X } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
-import { use } from 'react'
 
 const StoryViewer = ({viewStory, setViewStory}) => {
 
@@ -57,7 +56,7 @@ const StoryViewer = ({viewStory, setViewStory}) => {
   }
 
   return (
-    <div className='fixed inset-0 h-screen bg-opacity-90 z-110 flex items-center justify-center bg-[#4f46e5]' style={{backgroundColor: viewStory.media_type === 'text' ? viewStory.backgroundColor: '#040404 '}}>
+    <div className='fixed inset-0 h-screen bg-opacity-90 z-110 flex items-center justify-center bg-[#4f46e5]' style={{backgroundColor: viewStory.media_type === 'text' ? viewStory.background_color: '#040404 '}}>
 
         {/* progress bar */}
         <div className='absolute top-0 left-0 w-full h-1 bg-grey-700'>

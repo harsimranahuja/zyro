@@ -4,6 +4,8 @@ import { Image, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '@clerk/react'
+import api from '../api/axion.js'
 
 const CreatePost = () => {
   const navigate = useNavigate()
@@ -19,14 +21,14 @@ const CreatePost = () => {
       return toast.error('Please add at least one image or text')
     }
     setLoading(true)
-    const postType = images.length && content ? 'text_with_image' : image.length ? 'image' : 'text'
+    const postType = images.length && content ? 'text_with_image' : images.length ? 'image' : 'text'
 
     try {
       const formData = new FormData();
       formData.append('content', content)
       formData.append('post_type', postType)
-      image.map((image) =>{
-        formData.append('images', image)
+      images.map((img) =>{
+        formData.append('images', img)
       })
 
       const { data } = await api.post('/api/post/add', formData, {headers: {Authorization: `Bearer ${await getToken()}`}})
@@ -62,15 +64,15 @@ const CreatePost = () => {
         {/* </div> */}
 
         {/* Text Area */}
-        <textarea className='w-full resize-none max-h-20 mt-4 text-sm outline-none placeholder-gray-400' placeholder="what's happening?" onClick={(e) => setContent(e.target.value)} value={content} />
+        <textarea className='w-full resize-none max-h-20 mt-4 text-sm outline-none placeholder-gray-400' placeholder="what's happening?" onChange={(e) => setContent(e.target.value)} value={content} />
 
         {/* Images */}
         {
           images.length > 0 && <div className='flex flex-wrap gap-2 mt-4'>
-            {images.map((image, i) => (
+            {images.map((img, i) => (
               <div key={i} className='relative group'>
-                <img src={URL.createObjectURL(image)} className='h-20 rounded-md' alt="" />
-                <div onClick={() => setImages(image.filter((_, index) => index !== i))} className='absolue hidden group-hover:flex justify-center items-center top-0 right-0 bottom-0 left-0 bg-black/40 rounded-md cursor-pointer'>
+                <img src={URL.createObjectURL(img)} className='h-20 rounded-md' alt="" />
+                <div onClick={() => setImages(images.filter((_, index) => index !== i))} className='absolute hidden group-hover:flex justify-center items-center top-0 right-0 bottom-0 left-0 bg-black/40 rounded-md cursor-pointer'>
                   <X className='w-6 h-6 text-white' />
                 </div>
               </div>
@@ -82,12 +84,12 @@ const CreatePost = () => {
           <label htmlFor="images" className='flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 transition cursor-pointer'>
             <Image className='size-6'/>
           </label>
-          <input type="file" id="images" accept='image/*' hidden multiple onChange={(e)=> setImages([...images, ...e.target.files])} />
+          <input type="file" id="images" accept='image/*' hidden multiple onChange={(e)=> setImages([...images, ...Array.from(e.target.files)])} />
 
           <button disabled={loading} onClick={()=>toast.promise(
             handleSubmit(),
             {
-              laoding:'uploading ...',
+              loading:'uploading ...',
               success: <p>Post Added</p>,
               error: <p>Post Not Added</p>
             }

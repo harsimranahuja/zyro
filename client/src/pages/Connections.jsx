@@ -1,8 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {Users, UserPlus , UserCheck, UserRoundPen, MessageSquare} from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { fetchConnections } from '../features/connections/connectionSlice'
+import { useAuth } from '@clerk/react'
+import api from '../api/axion.js'
+import { toast } from 'react-hot-toast'
 
 const Connections = () => {
   const [currentTab, setCurrentTab] = useState('Followers')
@@ -107,7 +110,7 @@ const Connections = () => {
                 }
                 {
                   currentTab === 'Following' && (
-                    <button onClick={handleUnfollow(user._id)} className='w-full p-2 text-sm rounded bg-slate-100 hover:bg-slate-200 text-black active:scale-95 transition cursor-pointer'>
+                    <button onClick={() => handleUnfollow(user._id)} className='w-full p-2 text-sm rounded bg-slate-100 hover:bg-slate-200 text-black active:scale-95 transition cursor-pointer'>
                       unfollow
                     </button>
                   )
@@ -121,7 +124,7 @@ const Connections = () => {
                 }
                 {
                   currentTab === 'Connections' && (
-                    <button onClick={()=> navigate(`/message/${user._id}`)} className='w-full p-2 text-sm rounded bg-slate-100 hover:bg-slate-200 text-slate-800 active:scale-95 transition cursor-pointer flex items-center justify-center gap-1'>
+                    <button onClick={()=> navigate(`/messages/${user._id}`)} className='w-full p-2 text-sm rounded bg-slate-100 hover:bg-slate-200 text-slate-800 active:scale-95 transition cursor-pointer flex items-center justify-center gap-1'>
                       <MessageSquare className='w-4 h-4'/>
                       Message
                     </button>

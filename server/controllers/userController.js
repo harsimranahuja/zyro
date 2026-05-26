@@ -1,7 +1,7 @@
 import imagekit from "../configs/imageKit.js";
 import User from "../models/User.js";
 import fs from "fs"
-import { getAuth } from '@clerk/express';
+import { getAuth, clerkClient } from '@clerk/express';
 import Post from "../models/Post.js";
 import Connection from "../models/connection.js";
 import { inngest } from "../inngest/index.js";
@@ -12,9 +12,32 @@ import { inngest } from "../inngest/index.js";
 export const getUserData = async (req, res) => {
     try {
         const { userId } = getAuth(req);
-        const user = await User.findById(userId);
+        let user = await User.findById(userId);
         if (!user) {
-            return res.json({ success: false, message: "User not found" })
+            try {
+                const clerkUser = await clerkClient.users.getUser(userId);
+                if (clerkUser) {
+                    const email = clerkUser.emailAddresses[0]?.emailAddress;
+                    let username = email ? email.split('@')[0] : `user_${Math.floor(Math.random() * 10000)}`;
+                    const existingUser = await User.findOne({ username });
+                    if (existingUser) {
+                        username = username + Math.floor(Math.random() * 10000);
+                    }
+                    const userData = {
+                        _id: userId,
+                        email: email || '',
+                        full_name: (clerkUser.firstName || '') + " " + (clerkUser.lastName || ''),
+                        profile_picture: clerkUser.imageUrl || '',
+                        username
+                    };
+                    user = await User.create(userData);
+                } else {
+                    return res.json({ success: false, message: "User not found" });
+                }
+            } catch (clerkError) {
+                console.error("Clerk fetch error:", clerkError);
+                return res.json({ success: false, message: "User not found in database and failed to fetch from Clerk" });
+            }
         }
         res.json({ success: true, user })
     }
@@ -174,7 +197,7 @@ export const unfollowUser = async (req, res) => {
 // send connection request
 export const sendConnectionRequest = async (req, res) => {
     try {
-        const { userId } = req.auth()
+        const { userId } = getAuth(req)
         const { id } = req.body;
 
         // check if user haas sent more than 20 connection requests in the last 24 hours
@@ -219,8 +242,9 @@ export const sendConnectionRequest = async (req, res) => {
 
 export const getUserConnections = async (req, res) => {
     try {
-        const { userId } = req.auth()
+        const { userId } = getAuth(req)
         const user = await User.findById(userId).populate('connection followers following')
+        console.log(user)
 
         const connections = user.connection
         const followers = user.followers
@@ -240,7 +264,7 @@ export const getUserConnections = async (req, res) => {
 
 export const acceptConnectionRequest = async (req, res) => {
     try {
-        const { userId } = req.auth()
+        const { userId } = getAuth(req)
         const { id } = req.body;
 
         const connection = await Connection.findOne({ from_user_id: id, to_user_id: userId })

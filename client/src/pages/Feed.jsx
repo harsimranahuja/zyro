@@ -5,6 +5,9 @@ import Loading from '../components/Loading'
 import StoriesBar from '../components/StoriesBar'
 import Postcard from '../components/Postcard'
 import RecentMessages from '../components/RecentMessages'
+import { useAuth, useUser } from '@clerk/react'
+import api from '../api/axion.js'
+import { toast } from 'react-hot-toast'
 
 const Feed = () => {
   const [feeds, setfeeds] = useState([])
@@ -27,9 +30,10 @@ const Feed = () => {
     setLoading(false)
   }
 
+  const { user } = useUser();
   useEffect(() => {
-    fetchFeeds()
-  })
+    if (user) fetchFeeds();
+  }, [user])
   return !loading ? (
     <div className='h-full overflow-y-scroll no-scrollbar py-10 xl:pr-5 flex items-start justify-center xl:gap-8'>
       <div>

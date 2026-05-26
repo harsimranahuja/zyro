@@ -1,5 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-hot-toast'
 
 const Notification = ({ t, message }) => {
 
@@ -22,7 +23,7 @@ const Notification = ({ t, message }) => {
             </div>
             <div className='flex border-1 border-gray-200'>
                 <button onClick={()=>{
-                    navigate(`/message/${message.from_user_id._id}`)
+                    navigate(`/messages/${message.from_user_id._id}`)
                     toast.dismiss(t.id)
                 }} className='p-4 text-indigo-600 font-semibold'>
                     Reply

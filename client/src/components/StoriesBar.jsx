@@ -4,6 +4,9 @@ import { Plus } from 'lucide-react'
 import moment from 'moment'
 import StoryModel from './StoryModel'
 import StoryViewer from './StoryViewer'
+import { useAuth } from '@clerk/react'
+import api from '../api/axion.js'
+import { toast } from 'react-hot-toast'
 
 const StoriesBar = () => {
 

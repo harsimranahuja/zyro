@@ -29,7 +29,7 @@ const UserProfileInfo = ({user, posts, profileId, setShowEdit}) => {
                 <div className='flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-500 mt-4'>
                     <span className='flex items-center gap-1.5'>
                         <MapPin className= 'w-4 h-4'/>
-                        {user.loaction ? user.loaction : 'Add location'}
+                        {user.location ? user.location : 'Add location'}
                     </span>
                     <span className='flex items-center gap-1.5'>
                         <Calendar className= 'w-4 h-4'/>
@@ -42,11 +42,11 @@ const UserProfileInfo = ({user, posts, profileId, setShowEdit}) => {
                         <span className='text-xs sm:text-sm text-gray-500 ml-1'>Posts</span>
                     </div>
                     <div>
-                        <span className='sm:text-xl font-bold text-gray-900'>{user.followers.length}</span>
+                        <span className='sm:text-xl font-bold text-gray-900'>{user?.followers?.length || 0}</span>
                         <span className='text-xs sm:text-sm text-gray-500 ml-1'>Followers</span>
                     </div>
                     <div>
-                        <span className='sm:text-xl font-bold text-gray-900'>{user.following.length}</span>
+                        <span className='sm:text-xl font-bold text-gray-900'>{user?.following?.length || 0}</span>
                         <span className='text-xs sm:text-sm text-gray-500 ml-1'>Following</span>
                     </div>
                 </div>

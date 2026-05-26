@@ -10,7 +10,7 @@ import CreatePost from './pages/CreatePost'
 import ChatBox from './pages/ChatBox'
 import {useUser, useAuth} from '@clerk/react'
 import Layout from './pages/Layout'
-import {Toaster} from 'react-hot-toast'
+import { Toaster, toast } from 'react-hot-toast'
 import { useEffect, useRef } from 'react'
 import { useDispatch } from 'react-redux'
 import { fetchUser } from './features/user/userSlice'
@@ -20,6 +20,7 @@ import Notification from './components/Notification'
 
 const App = () => {
   const { user } = useUser()
+  console.log(user)
   const { getToken } = useAuth()
   const {pathname} = useLocation()
   const pathnameRef = useRef(pathname)
@@ -48,7 +49,7 @@ const App = () => {
       eventSource.onmessage = (event)=>{
         const message = JSON.parse(event.data)
 
-        if(pathnameRef.current === ('/message/' + message.from_user_id._id)){
+        if(pathnameRef.current === ('/messages/' + message.from_user_id._id)){
           dispatch(addMessage(message))
         }else{
           toast.custom((t)=>(
@@ -60,7 +61,7 @@ const App = () => {
         eventSource.close()
       }
     }
-  })
+  }, [user])
 
   return (
     <>

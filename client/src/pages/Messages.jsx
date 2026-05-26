@@ -22,7 +22,7 @@ const Messages = () => {
       {/* Connected user */}
       <div className='flex flex-col gap-3'>
         {connections.map((user)=>(
-          <div className='max-w-[50vw] flex  gap-5 p-6 bg-white shadow rounded-md '>
+          <div key={user._id} className='max-w-[50vw] flex  gap-5 p-6 bg-white shadow rounded-md '>
             <img src={user.profile_picture} className='flex justify-center rounded-full size-12 mx-auto my-auto' alt="" />
             <div className='flex-1'>
               <p className='font-medium text-slate-700'>{user.full_name}</p>
